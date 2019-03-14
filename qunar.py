@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 # import pandas as pd
 import requests
 import json
+import re
 import ipcheck
 import csv
 import random
@@ -58,24 +59,33 @@ def GetPJUrl(url, file, proxy):
         a = msg.find_all('a', {'data-beacon': 'comment_title'})
         if len(a) == 0:
             return
-        for j in range(0, len(a)-1):
-            if a[j].attrs['href'].find("javascript")==-1:
+        for j in range(0, len(a) - 1):
+            if a[j].attrs['href'].find("javascript") == -1:
                 proxyurl = GetData(a[j].attrs['href'], file, proxy, proxyurl)
         i += 1
 
 
 def GetData(url, file, proxy, proxyurl):
     res, proxyurl = AutoProxy(2, proxy, proxyurl, url)
+    print(url)
+    res = requests.get(url)
     msg = BeautifulSoup(res.text, "lxml")
-    title = msg.find_all("div", {'class': 'comment_title'})
-    a1 = msg.find_all('p')
+    ti = msg.find_all(text=re.compile('2018-+\d+-+\d'))
+    if ti == []:
+        return
     a = []
-    if len(title) > 0:
-        a.append(str(title[0].text))
-    for val in a1:
-        if val.text != "":
-            a.append(str(val.text))
-    file.writerow(a[:len(a) - 2])
+    a.append(ti[0].strip())
+    title = msg.find("div", {'class': 'comment_title'})
+    a1 = msg.find('div', {'class': 'e_comment_content_box'})
+    username = msg.find('a', {'class': 'usr_name'})
+    a.append("用户名：" + username.text)
+    if title != None:
+        a.append("title：" + title.text.strip())
+    else:
+        a.append("")
+    a.append("正文：" + a1.text.strip())
+    file.writerow(a)
+    print("抓取到一条数据！！")
     return proxyurl
 
 
@@ -87,7 +97,7 @@ def AutoProxy(flag, proxy, proxyurl, url):
                 return heihei, proxyurl
         except BaseException:
             print(proxyurl, "已经失效，需要更换proxy")
-            b = random.randint(0, len(proxy)-1)
+            b = random.randint(0, len(proxy) - 1)
             z = "http://" + proxy[b]
             proxyurl = {'http': z}
             print("更换后的proxy：", proxyurl)

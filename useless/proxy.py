@@ -1,8 +1,13 @@
 import urllib.request
 import requests
 from bs4 import BeautifulSoup
+
 import json
 import ipcheck
+import re
+import socket
+import csv
+
 
 
 def IPspider(numpage):
@@ -51,6 +56,7 @@ def IPCheck(url):
         pass
 
 
+
 def DoTimes():
     while True:
         j = 1
@@ -86,5 +92,25 @@ def Ceshi():
     time = msg.find_all('li')
     for ti in time:
         print(ti.text)
+
+def Ceshi2():
+    res = requests.get('http://travel.qunar.com/p-pl5128801')
+    msg = BeautifulSoup(res.text, 'lxml')
+    emailid_regexp = re.compile("cur_star star_+\w")
+
+    a1 = msg.find('div', {'class': 'e_comment_content_box'})
+    print(a1.text.strip())
+    username = msg.find('a', {'class': 'usr_name'})
+    print(username.text)
+    title = msg.find("div", {'class': 'comment_title'})
+    print(title.text.strip())
+    a = msg.find_all(text=re.compile('2016-+\d+-+\d'))
+    if a == []:
+        print("没有数据")
+        return
+    print(len(a))
+
+    print(a[0].strip())
+
 if __name__ == '__main__':
     Ceshi()
