@@ -1,8 +1,8 @@
 import urllib.request
 import requests
 from bs4 import BeautifulSoup
-import socket
-import csv
+import json
+import ipcheck
 
 
 def IPspider(numpage):
@@ -37,8 +37,6 @@ def IPspider(numpage):
         file.close()
 
 
-
-
 def IPCheck(url):
     # socket.setdefaulttimeout(2)
     # proxy_handler = urllib.request.ProxyHandler({"http": url})
@@ -53,5 +51,40 @@ def IPCheck(url):
         pass
 
 
+def DoTimes():
+    while True:
+        j = 1
+        res = requests.get(
+            "http://travel.qunar.com/place/api/html/comments/poi/714422?poiList=true&sortField=1&rank=0&pageSize=50&page=" + str(
+                1))
+        print(res.links, res.url)
+        try:
+            json_data = json.loads(res.text)['data']
+        except:
+            return
+        msg = BeautifulSoup(json_data, 'lxml')
+        a = msg.find_all('a', {'data-beacon': 'comment_title'})
+        print(len(a))
+        for i in range(0, len(a)):
+            print(a[i].attrs['href'])
+        j += 1
+
+
+def Strs():
+    a = "asdasdasd"
+    b = "xasd"
+    print(a.find(b))
+
+
+def Ceshi():
+    url = "http://travel.qunar.com/p-pl5730006"
+    res = requests.get(url)
+    msg = BeautifulSoup(res.text,'lxml')
+    title = msg.find_all("div",{'class':'e_comment_content_box'})
+    for t in title:
+        print(t.text)
+    time = msg.find_all('li')
+    for ti in time:
+        print(ti.text)
 if __name__ == '__main__':
-    IPspider(3000)
+    Ceshi()

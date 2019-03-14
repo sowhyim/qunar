@@ -19,8 +19,8 @@ def IPCheck():
 
 def ProxyCheck(url):
     try:
-        requests.get('http://www.baidu.com/', proxies={"http": "http://" + url}, timeout=2)
-        print(url)
+        res = requests.get('http://www.baidu.com/', proxies={url}, timeout=2)
+        print(res.links)
     except Exception:
         print(url, "失败")
 
@@ -31,6 +31,15 @@ def ReadIP():
     for line in lines:
         ProxyCheck(line.split("\n")[0])
 
+
+def GetIP():
+    file = open("proxy.txt", "r", encoding="utf-8")
+    lines = file.readlines()
+    i=0
+    while i < len(lines):
+        lines[i]=lines[i][:len(lines[i])-1]
+        i+=1
+    return lines
 
 
 if __name__ == '__main__':
